@@ -1,0 +1,142 @@
+--main
+local Library = loadstring(game:HttpGet('https://raw.githubusercontent.com/VisualRoblox/Roblox/main/UI-Libraries/Visual%20UI%20Library/Source.lua'))()
+
+--Windows
+local Window = Library:CreateWindow('ZxitersHub', 'BloxFruits', 'Visual UI Library', 'rbxassetid://10618928818', false, 'VisualUIConfigs', 'Default')
+
+--tabs
+local Tab = Window:CreateTab('Tab', true, 'rbxassetid://3926305904', Vector2.new(524, 44), Vector2.new(36, 36))
+
+--button
+local Button = Section:CreateButton('AimBot', function()
+    print('
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
+
+function getClosestPlayerToMouse()
+    local closestPlayer = nil
+    local shortestDistance = math.huge
+
+    for i, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
+            local pos, onScreen = workspace.CurrentCamera:WorldToScreenPoint(player.Character.Head.Position)
+            if onScreen then
+                local distance = (Vector2.new(pos.X, pos.Y) - Vector2.new(Mouse.X, Mouse.Y)).magnitude
+                if distance < shortestDistance then
+                    shortestDistance = distance
+                    closestPlayer = player
+                end
+            end
+        end
+    end
+
+    return closestPlayer
+end
+
+
+Mouse.Button1Down:Connect(function()
+    local target = getClosestPlayerToMouse()
+    if target and target.Character and target.Character:FindFirstChild("Head") then
+        workspace.CurrentCamera.CFrame = CFrame.new(workspace.CurrentCamera.CFrame.Position, target.Character.Head.Position)
+    end
+end)
+')
+
+--Button
+local Button = Section:CreateButton('AutoFarm', function()
+    print('
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+-- Função para atacar inimigos próximos
+function autoAttack()
+    while true do
+        wait(0.5)
+        local enemies = workspace.Enemies:GetChildren()
+        for _, enemy in pairs(enemies) do
+            if enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 then
+                -- Teleporta até o inimigo
+                character.HumanoidRootPart.CFrame = enemy.HumanoidRootPart.CFrame * CFrame.new(0, 0, 2)
+                
+                -- Simula ataque
+                game:GetService("ReplicatedStorage").Remotes.Combat:FireServer(enemy)
+
+                -- Espera até derrotar o inimigo
+                repeat
+                    wait(0.2)
+                until enemy.Humanoid.Health <= 0
+            end
+        end
+    end
+end
+
+-- Inicia o autofarm
+spawn(autoAttack)')
+
+--Button
+local Button = Section:CreateButton('Fechar', function()
+    print('
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local runFarm = true -- Controle do Auto Farm
+
+-- GUI
+local ScreenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+ScreenGui.Name = "AutoFarmGUI"
+
+local Frame = Instance.new("Frame", ScreenGui)
+Frame.Size = UDim2.new(0, 200, 0, 100)
+Frame.Position = UDim2.new(0, 20, 0, 20)
+Frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+Frame.BorderSizePixel = 0
+
+local CloseButton = Instance.new("TextButton", Frame)
+CloseButton.Size = UDim2.new(1, 0, 0.4, 0)
+CloseButton.Position = UDim2.new(0, 0, 0.6, 0)
+CloseButton.Text = "Fechar Auto Farm"
+CloseButton.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.Font = Enum.Font.SourceSansBold
+CloseButton.TextSize = 16
+
+-- Auto Farm Funcionalidade
+function autoAttack()
+    while runFarm do
+        wait(0.5)
+        local enemies = workspace:FindFirstChild("Enemies")
+        if not enemies then continue end
+
+        for _, enemy in pairs(enemies:GetChildren()) do
+            if enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 then
+                -- Teleporta até o inimigo
+                character.HumanoidRootPart.CFrame = enemy.HumanoidRootPart.CFrame * CFrame.new(0, 0, 2)
+                
+                -- Simula ataque
+                game:GetService("ReplicatedStorage").Remotes.Combat:FireServer(enemy)
+
+                -- Espera até derrotar
+                repeat
+                    wait(0.2)
+                until enemy.Humanoid.Health <= 0 or not runFarm
+
+                if not runFarm then break end
+            end
+        end
+    end
+end
+
+-- Evento do Botão
+CloseButton.MouseButton1Click:Connect(function()
+    runFarm = false
+    ScreenGui:Destroy()
+end)
+
+-- Inicia o Auto Farm
+spawn(autoAttack)')
+
+end
+   
+   end
